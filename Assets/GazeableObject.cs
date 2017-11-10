@@ -15,11 +15,26 @@ public class GazeableObject : MonoBehaviour
 
     private Vector3 initialObjectScale;
 
+    private void Start()
+    {
+        //Disable this object's outline after initial setup.
+        if (isTransformable)
+        {
+            GetComponentInChildren<cakeslice.Outline>().enabled = false;
 
+        }
+    }
 
     public virtual void OnGazeEnter(RaycastHit hitInfo)
     {
         Debug.Log("Gaze entered on " + gameObject.name);
+
+        //If this object is furniture and the player is in a transformation mode, enable outline.
+        if (isTransformable && (Player.instance.activeMode == InputMode.TRANSLATE || Player.instance.activeMode == InputMode.ROTATE || Player.instance.activeMode == InputMode.SCALE))
+        {
+            GetComponentInChildren<cakeslice.Outline>().enabled = true;
+
+        }
     }
 
     public virtual void OnGaze(RaycastHit hitInfo)
@@ -30,6 +45,13 @@ public class GazeableObject : MonoBehaviour
     public virtual void OnGazeExit()
     {
         Debug.Log("Gaze exited on " + gameObject.name);
+
+        //If this object is furniture, disable outline. 
+        if (isTransformable)
+        {
+            GetComponentInChildren<cakeslice.Outline>().enabled = false;
+
+        }
     }
 
     public virtual void OnPress(RaycastHit hitInfo)
@@ -151,21 +173,6 @@ public class GazeableObject : MonoBehaviour
 
             scaleFactor = 1.0f + Mathf.Abs(rotationDelta.x) * scaleSpeed;
         }
-        else
-        {
-
-            if (rotationDelta.x < -180.0f)
-            {
-                rotationDelta.x = 360.0f + rotationDelta.x;
-            }
-
-
-            scaleFactor = Mathf.Max(0.1f, 1.0f - Mathf.Abs(rotationDelta.x) / 45);
-        }
-
-        Debug.Log("Rotation Delta: " + rotationDelta.ToString());
-
-        transform.localScale = scaleFactor * initialScale;
 
     }
 }
